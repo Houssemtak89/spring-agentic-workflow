@@ -1,0 +1,36 @@
+# GitHub Actions: build, tests, JaCoCo and SonarCloud quality gate on every push and pull request.
+# Copy to .github/workflows/ci.yml.
+# Needs a SonarCloud project (free for public repositories) and the SONAR_TOKEN secret in the repository.
+# In pom.xml <properties>:
+#   <sonar.organization>your-org</sonar.organization>
+#   <sonar.projectKey>your-org_your-repo</sonar.projectKey>
+#   <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+#   <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
+
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # Sonar needs the history to find new code
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+      - name: Build, tests and coverage
+        run: ./mvnw -B verify
+      - name: SonarCloud analysis and quality gate
+        if: env.SONAR_TOKEN != ''
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./mvnw -B sonar:sonar -Dsonar.qualitygate.wait=true

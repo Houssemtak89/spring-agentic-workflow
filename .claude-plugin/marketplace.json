@@ -1,0 +1,12 @@
+{
+  "name": "spring-agentic-workflow",
+  "owner": { "name": "Houssem TAKTAK" },
+  "description": "Spring agentic workflow: a Claude Code plugin that takes a Java / Spring ticket from analysis to merge, with the developer deciding at four gates.",
+  "plugins": [
+    {
+      "name": "spring-agentic-workflow",
+      "source": "./",
+      "description": "A ticket-to-merge workflow for Java / Spring teams: AI agents analyse, plan and implement, the developer decides at four gates."
+    }
+  ]
+}
