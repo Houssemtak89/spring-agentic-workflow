@@ -86,9 +86,12 @@ test('no dirty mark before go', () => {
   assert.equal(markDirty(dir, { file_path: path.join(dir, 'src', 'Vet.java') }), false);
 });
 
-test('stop is blocked from step 7 while checks are missing, red or out of date', () => {
+test('once the checks have run, stop is blocked while they are red or out of date', () => {
   const { dir, t } = project({ step: 7 });
-  assert.match(checkStop(dir), /not run yet/);
+  assert.equal(checkStop(dir), null); // implementation still running: no quality run yet
+  writeQualityProject(dir, JACOCO, { buildCommand: 'node -e "process.exit(3)"' });
+  runQualityGates(dir);
+  assert.match(checkStop(dir), /last quality run failed/);
   assert.equal(checkStop(dir, true), null); // never loop
   writeQualityProject(dir, JACOCO, { buildCommand: 'node -e "process.exit(0)"' });
   runQualityGates(dir);

@@ -1,6 +1,6 @@
 ---
 name: functional-questions
-description: Step 2 of the Spring agentic workflow. Turns the gaps found in step 1 into a short list of business questions for the developer, records the answers in 02-functional-questions.md, and stops until the developer approves with /approve functional.
+description: Step 2 of the Spring agentic workflow. Turns the gaps found in step 1 into a short list of business questions for the developer, records the answers and the agreed rules (F1, F2…) in 02-functional-questions.md, and stops until the developer types /approve functional. Use only when the active ticket is at step 2 on the normal path.
 ---
 
 # Step 2 · Functional questions (human gate)
@@ -8,7 +8,7 @@ description: Step 2 of the Spring agentic workflow. Turns the gaps found in step
 Goal: settle the business behaviour before any technical choice. A wrong assumption here costs the most later.
 
 ## Write the questions
-Start from the "Gaps and contradictions" section of `01-understanding.md`.
+Start from the "Gaps and contradictions" section of `01-understanding.md`. Check the project's functional documentation first (`docs/functional/`, or the specification folder set in `.claude/spring-agentic-workflow.json`): a question it already answers is not a question, it is a rule to quote.
 
 Rules for each question:
 - About behaviour, never about implementation ("What happens when the slot is already taken?", not "Should we add a unique index?").
@@ -31,11 +31,11 @@ Show the questions in the conversation and write them to `docs/tickets/<ID>/02-f
 
 Then stop. Do not plan or code anything.
 
-When the developer answers, fill the Answer column with their words, and add an "Agreed behaviour" section: the rules as they will be tested, one per line, numbered `F1`, `F2`… These numbers are reused by the tests and by the coverage review at step 8.
+When the developer answers, fill the Answer column with their words, and add an "Agreed behaviour" section: the rules as they will be tested, one per line, numbered `F1`, `F2`… These numbers are reused by the plan, the tests, the functional review and the functional documentation.
 
 ## Gate
 The developer closes this step by typing `/approve functional`. Only the developer can do it: the approval is recorded by a hook, and the plugin refuses any write to `approvals.json`.
 
 If they change an answer later, update the file and ask them to approve again.
 
-Once approved, set `"step": 3` in `state.json` and go to `technical-plan`.
+Once approved, go to `technical-plan`.

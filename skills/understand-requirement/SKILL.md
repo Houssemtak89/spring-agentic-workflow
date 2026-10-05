@@ -1,6 +1,6 @@
 ---
 name: understand-requirement
-description: Step 1 of the Spring agentic workflow. Reads a ticket, maps it to the existing code base, ADRs and constraints, and writes 01-understanding.md. Use when /ticket starts a new ticket or when the understanding of a ticket must be redone.
+description: Step 1 of the Spring agentic workflow. Reads a ticket, maps it to the existing code base, ADRs, project knowledge and constraints, and writes 01-understanding.md with a size estimate. Use only when a ticket is active at step 1, right after /ticket, or when the developer asks to redo the understanding of the active ticket.
 ---
 
 # Step 1 · Understand the requirement
@@ -8,18 +8,15 @@ description: Step 1 of the Spring agentic workflow. Reads a ticket, maps it to t
 Goal: before any question or design, know what the ticket asks and what it touches in the code that already exists.
 
 ## Inputs
-- The ticket text given to `/ticket` (or the file it points to).
-- `docs/adr/` and any conventions file the project has (`CONVENTIONS.md`, `docs/conventions/`, `CLAUDE.md`).
+- The ticket text in `docs/tickets/<ID>/00-ticket.md`.
+- The project's knowledge base (`.claude/skills/project-knowledge/`), `docs/adr/`, the conventions file, `CLAUDE.md`.
 - The code itself.
 
 ## How to work
-1. Delegate the exploration to the `requirement-analyst` agent. Give it the ticket text and the ticket folder path.
-2. The analyst reads; it does not change code.
-3. Check its output yourself before writing the file. If a statement about the code has no file reference, verify it or remove it.
+1. Delegate the exploration to the `analyst` agent. Give it the ticket text and the ticket folder path. It reads a lot so that this conversation does not have to; it cannot write.
+2. Check its output before writing the file. If a statement about the code has no file reference, verify it yourself or remove it.
 
 ## Output: `docs/tickets/<ID>/01-understanding.md`
-
-Use this structure, with short sentences:
 
 ```markdown
 # <ID> · Understanding
@@ -28,17 +25,18 @@ Use this structure, with short sentences:
 One paragraph, in the business words of the ticket.
 
 ## Where it lands in the code
-- `path/to/File.java`: what it does today, what will probably change.
+- `path/to/File.java:line`: what it does today, what will probably change.
 
 ## Existing rules and constraints
 - ADR-00X: ...
+- Project knowledge: ...
 - Business rule already coded in `...`: ...
 - Technical constraint (transactions, security, performance, data protection): ...
 
 ## Gaps and contradictions
 What the ticket does not say, or what conflicts with the code or an ADR.
 
-## First size estimate
+## Size
 small | medium | large, with one line of justification.
 ```
 
@@ -47,4 +45,8 @@ small | medium | large, with one line of justification.
 - medium: several classes in one module, a new field or table, a new business rule.
 - large: several modules or services, data migration, security or personal data involved, or a new ADR is likely.
 
-Update `docs/tickets/<ID>/state.json`: set `"step": 2` and `"size"` to the estimate. Then go to step 2 (`functional-questions`).
+## Then
+Give the developer a three-line summary: what is asked, where it lands, the size.
+
+- **Small ticket with few gaps**: offer the choice. "This looks small. Normal path (functional questions, technical plan, implementation plan), or fast path (one short plan, one approval)?" If they choose the fast path, run the `fast-plan` skill. Never choose it for them.
+- **Otherwise**: go to step 2 with the `functional-questions` skill.
