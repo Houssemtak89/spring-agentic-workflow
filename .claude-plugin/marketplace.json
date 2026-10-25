@@ -6,7 +6,7 @@
     {
       "name": "spring-agentic-workflow",
       "source": "./",
-      "description": "A ticket-to-merge workflow for Java / Spring teams: AI agents analyse, plan and implement, the developer decides at four gates."
+      "description": "A ticket-to-merge workflow for Java / Spring teams: six AI agents analyse, plan, implement and review, the developer decides at four gates enforced by hooks, and each ticket teaches the project's own knowledge base."
     }
   ]
 }

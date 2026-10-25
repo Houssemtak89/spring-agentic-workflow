@@ -1,0 +1,7 @@
+{
+  "coverageThreshold": 80,
+  "sonar": false,
+  "buildCommand": null,
+  "specsPath": null,
+  "knowledgePath": null
+}

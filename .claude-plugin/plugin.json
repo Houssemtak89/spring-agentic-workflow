@@ -1,8 +1,10 @@
 {
   "name": "spring-agentic-workflow",
-  "version": "0.1.0",
-  "description": "A ticket-to-merge workflow for Java / Spring teams: AI agents analyse, plan and implement, the developer decides at four gates.",
+  "version": "0.2.0",
+  "description": "A ticket-to-merge workflow for Java / Spring teams: six AI agents analyse, plan, implement and review, the developer decides at four gates enforced by hooks, and each ticket teaches the project's own knowledge base.",
   "author": { "name": "Houssem TAKTAK" },
+  "homepage": "https://github.com/Houssemtak89/spring-agentic-workflow",
+  "repository": "https://github.com/Houssemtak89/spring-agentic-workflow",
   "license": "MIT",
-  "keywords": ["java", "spring-boot", "agents", "workflow", "code-review", "adr"]
+  "keywords": ["java", "spring-boot", "agents", "workflow", "code-review", "adr", "human-in-the-loop", "knowledge-base"]
 }
