@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.3.1
+After a first real call to a remote reviewer (Java Code Reviewer, run locally, on the two classes changed by a test ticket).
+- Remote reviewers: findings on lines the ticket did not change are dropped as outside the ticket; a call gets about a minute and one retry.
+- The documentation no longer assumes a Hugging Face Space: a remote reviewer is another model outside the session, hosted anywhere, including on the developer's machine.
+
 ## 0.3.0
 After two full runs of the same ticket on spring-petclinic, one driven by a small model on the normal path and one by a large model on the fast path.
 

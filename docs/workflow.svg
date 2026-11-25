@@ -73,7 +73,7 @@
 <text x="24" y="78" class="lead" text-anchor="start"><tspan x="24" dy="0">From ticket to merge on a Java / Spring project. AI agents analyse, plan, implement and review; the developer decides at four gates,</tspan></text>
 <text x="24" y="96" class="lead" text-anchor="start"><tspan x="24" dy="0">the plugin’s hooks hold everyone to it, and every ticket teaches the project’s own knowledge base.</tspan></text>
 <rect x="1332" y="30" width="64" height="24" rx="12" class="tag"/>
-<text x="1364" y="46" class="tagtext" text-anchor="middle"><tspan x="1364" dy="0">v0.3.0</tspan></text>
+<text x="1364" y="46" class="tagtext" text-anchor="middle"><tspan x="1364" dy="0">v0.3.1</tspan></text>
 <rect x="24" y="120" width="122" height="150" rx="12" class="lab lab-dev"/>
 <text x="85" y="191" class="labt t-dev" text-anchor="middle"><tspan x="85" dy="0">Developer</tspan></text>
 <text x="85" y="208" class="labs" text-anchor="middle"><tspan x="85" dy="0">decides</tspan></text>
@@ -231,7 +231,7 @@
 <path d="M470 857 H153 V354 H163" class="learn" marker-end="url(#a-learn)"/>
 <text x="312" y="849" class="learntext" text-anchor="middle"><tspan x="312" dy="0">read first by every agent, on the next ticket</tspan></text>
 <text x="24" y="946" class="h2" text-anchor="start"><tspan x="24" dy="0">Six agents, each with its own context and its own limits</tspan></text>
-<text x="1396" y="946" class="remotenote" text-anchor="end"><tspan x="1396" dy="0">+ optional remote reviewers: another model hosted elsewhere, reached over MCP (for example a Hugging Face Space)</tspan></text>
+<text x="1396" y="946" class="remotenote" text-anchor="end"><tspan x="1396" dy="0">+ optional remote reviewers: another model hosted elsewhere, reached over MCP (a Space, a team server, or your machine)</tspan></text>
 <rect x="24" y="962" width="218" height="138" rx="12" class="card"/>
 <text x="40" y="988" class="cardname" text-anchor="start"><tspan x="40" dy="0">analyst</tspan></text>
 <text x="40" y="1010" class="cardrole" text-anchor="start"><tspan x="40" dy="0">Maps the ticket to the code,</tspan><tspan x="40" dy="16">the ADRs and what the project</tspan><tspan x="40" dy="16">knows. Every claim cites a file.</tspan></text>

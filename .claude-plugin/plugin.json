@@ -1,6 +1,6 @@
 {
   "name": "spring-agentic-workflow",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "description": "A ticket-to-merge workflow for Java / Spring teams: six AI agents analyse, plan, implement and review, the developer decides at four gates enforced by hooks, and each ticket teaches the project's own knowledge base. Built to move to another AI coding tool: plain Node gate logic and Markdown instructions.",
   "author": {
     "name": "Houssem TAKTAK"

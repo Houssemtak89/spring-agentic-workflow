@@ -111,17 +111,19 @@ One `technical-reviewer` looks through one lens: `security`, `performance`, `dat
 
 The six agents above run in your session, on the model you use. A project can also have **remote reviewers**: review services hosted elsewhere, reached through an MCP tool, that give a second opinion from a different model. That is where a second opinion is worth most: a model does not easily see the blind spots of code it wrote itself.
 
-One example is Java Code Reviewer, a Hugging Face Space that reviews a Java class with an open source model and exposes the MCP tool `review_java_code`. Any MCP review tool works the same way.
+One example is Java Code Reviewer, a small Spring Boot service that reviews a Java class with an open source model and exposes the MCP tool `review_java_code`. It runs anywhere a container runs: a Hugging Face Space, a server of your team, or your own machine. Any MCP review tool works the same way.
 
 They are optional and opt-in, because the changed code leaves your machine:
 
-1. Connect the service: `claude mcp add --transport http java-reviewer <url of the service>/mcp`
+1. Connect the service: `claude mcp add --transport http java-reviewer <url of the service>/mcp` (for a local run, `http://localhost:7860/mcp`)
 2. List it in `.claude/spring-agentic-workflow.json`:
    ```json
    { "remoteReviewers": [ { "name": "java-code-reviewer", "tool": "mcp__java-reviewer__review_java_code", "files": "**/*.java", "maxLines": 200, "maxChars": 12000 } ] }
    ```
 
 At step 8 the main session sends only the code the ticket changed, within the service's limits, and never configuration or secrets. What comes back is treated as an opinion from outside: each finding is checked at its line before it counts, anything that contradicts the plan or an ADR is dropped, and the result is written to `06-log/review-remote-<name>.md`. A remote reviewer that is slow, over its quota or down never blocks the ticket.
+
+What to expect, from a real run on a ticket: the service answered one call in four (a free model is often busy), and none of its four findings survived the check: two were about lines the ticket had not touched, one was wrong about the code, one was not a defect. That is the normal shape of a second opinion from a model that sees one class without the project, and it is why the checking step is not optional.
 
 ## What the hooks enforce
 

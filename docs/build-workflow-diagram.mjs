@@ -56,7 +56,7 @@ text(24, 50, 'Spring agentic workflow', 'h1', 'start');
 text(24, 78, 'From ticket to merge on a Java / Spring project. AI agents analyse, plan, implement and review; the developer decides at four gates,', 'lead', 'start');
 text(24, 96, 'the plugin’s hooks hold everyone to it, and every ticket teaches the project’s own knowledge base.', 'lead', 'start');
 rect(W - 24 - 64, 30, 64, 24, 'tag', 12);
-text(W - 24 - 32, 46, 'v0.3.0', 'tagtext');
+text(W - 24 - 32, 46, 'v0.3.1', 'tagtext');
 
 // ---------------------------------------------------------------------------------------------
 // Lanes
@@ -178,7 +178,7 @@ text(312, KY + 27, 'read first by every agent, on the next ticket', 'learntext')
 // The six agents
 // ---------------------------------------------------------------------------------------------
 text(24, 946, 'Six agents, each with its own context and its own limits', 'h2', 'start');
-text(W - 24, 946, '+ optional remote reviewers: another model hosted elsewhere, reached over MCP (for example a Hugging Face Space)', 'remotenote', 'end');
+text(W - 24, 946, '+ optional remote reviewers: another model hosted elsewhere, reached over MCP (a Space, a team server, or your machine)', 'remotenote', 'end');
 const AGENTS = [
   ['analyst', ['Maps the ticket to the code,', 'the ADRs and what the project', 'knows. Every claim cites a file.'], 'nothing', 'ro'],
   ['architect', ['Lists the real decisions, with', 'options, cost, and what the', 'project has already settled.'], 'nothing', 'ro'],
