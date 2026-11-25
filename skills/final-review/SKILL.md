@@ -5,7 +5,7 @@ description: Step 8 of the Spring agentic workflow. Two AI reviews before the de
 
 # Step 8 · AI reviews, then step 9 · human review
 
-Run 8a and 8b in the same message: they are independent.
+Run 8a, 8b and 8c in the same message: they are independent.
 
 ## 8a · Functional review and documentation
 Ask the `functional-reviewer` agent. Give it:
@@ -29,7 +29,10 @@ If the project has no pull request history or no GitHub CLI, skip 8b and say so 
 
 Then run the `review-lenses` skill with the `review-kb` lens on the diff. It reports each place where the new code repeats something the team already asked to change, with the past comment it relies on.
 
-Fix what is clear through the owner of the file, then run the quality gates again: the plugin requires a green run after any code change.
+## 8c · A second opinion from outside (optional)
+If `.claude/spring-agentic-workflow.json` lists `remoteReviewers` and their MCP tools are available in this session, ask them, following `${CLAUDE_SKILL_DIR}/../review-lenses/references/remote-reviewers.md`. A remote reviewer is another model hosted elsewhere, so only the code this ticket changed is sent, and each finding it returns is checked at its line before it counts. If none is configured, or the service does not answer, skip this step and say so.
+
+Fix what is clear through the owner of the file (the task that owns it in `04-implementation-plan.md`, or in the Tasks table of `02-fast-plan.md` on the fast path), then run the quality gates again: the plugin requires a green run after any code change.
 
 ## Output: `docs/tickets/<ID>/08-review.md`
 
@@ -47,6 +50,10 @@ Fix what is clear through the owner of the file, then run the quality gates agai
 ## Remarks from the team's past reviews
 | Where | Remark | Past comment | Done |
 |---|---|---|---|
+
+## Remote reviewers
+| Reviewer | Sent | Findings confirmed | Dropped after checking | Done |
+|---|---|---|---|---|
 
 ## For the human reviewer
 What to look at first, the choices made and their ADR, what was left out on purpose.

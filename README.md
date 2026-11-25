@@ -13,6 +13,7 @@ It runs on Claude Code today and is **built to move to another AI coding tool**:
 - **Every business rule is traced.** Rules agreed with you are numbered `F1`, `F2`… and followed through the plan, the tests, the review and the functional documentation.
 - **It learns your project, it does not lecture it.** The plugin ships only common principles (DRY, SOLID, YAGNI, KISS). After each ticket, a retro proposes what the project should remember; what you validate goes into a project skill that every later ticket reads first.
 - **Proportionate.** A small ticket takes the fast path: one page, one approval.
+- **Open to remote reviewers.** A project can add a second opinion from a review service hosted elsewhere, such as an open source model running in a Hugging Face Space, reached through MCP.
 
 ## Requirements
 
@@ -60,7 +61,7 @@ It checks the prerequisites, creates `.claude/spring-agentic-workflow.json`, `do
 | 4-5 | `orchestrate` | main session | **`/approve go`** |
 | 6 | `implement` | `developer` × N, `test-engineer`, review lenses | code, tests, notes in `06-log/` |
 | 7 | `quality-gates` | script, `technical-reviewer` (conventions) | `07-quality-report.md`, all green |
-| 8 | `final-review` | `functional-reviewer`, `technical-reviewer` (past reviews) | `08-review.md`, functional docs updated |
+| 8 | `final-review` | `functional-reviewer`, `technical-reviewer` (past reviews), remote reviewers if any | `08-review.md`, functional docs updated |
 | 9 | your review | you | **`/approve merge`** |
 | 10 | `retro` | main session, you | `10-retro.md`, knowledge base enriched |
 
@@ -74,7 +75,7 @@ After step 1, if the ticket is small, Claude offers the fast path. It writes one
 /approve fast
 ```
 
-That single approval stands for the first three gates. Steps 6 to 10 are unchanged. Only you can choose it.
+That single approval stands for the first three gates. Steps 6 to 10 are unchanged. Only you can choose it. If the plan has to change afterwards, the ticket status says so until you type `/approve fast` again.
 
 ## Commands
 
@@ -106,13 +107,31 @@ Commands are namespaced by Claude Code: `/spring-agentic-workflow:ticket` always
 
 One `technical-reviewer` looks through one lens: `security`, `performance`, `data-protection`, `conventions`, `review-kb` (the team's past pull request comments). A lens runs only when the change has that risk. The lens files are in [`skills/review-lenses/references/`](skills/review-lenses/references/); the project's own rules outrank them.
 
+### Remote reviewers
+
+The six agents above run in your session, on the model you use. A project can also have **remote reviewers**: review services hosted elsewhere, reached through an MCP tool, that give a second opinion from a different model. That is where a second opinion is worth most: a model does not easily see the blind spots of code it wrote itself.
+
+One example is Java Code Reviewer, a Hugging Face Space that reviews a Java class with an open source model and exposes the MCP tool `review_java_code`. Any MCP review tool works the same way.
+
+They are optional and opt-in, because the changed code leaves your machine:
+
+1. Connect the service: `claude mcp add --transport http java-reviewer <url of the service>/mcp`
+2. List it in `.claude/spring-agentic-workflow.json`:
+   ```json
+   { "remoteReviewers": [ { "name": "java-code-reviewer", "tool": "mcp__java-reviewer__review_java_code", "files": "**/*.java", "maxLines": 200, "maxChars": 12000 } ] }
+   ```
+
+At step 8 the main session sends only the code the ticket changed, within the service's limits, and never configuration or secrets. What comes back is treated as an opinion from outside: each finding is checked at its line before it counts, anything that contradicts the plan or an ADR is dropped, and the result is written to `06-log/review-remote-<name>.md`. A remote reviewer that is slow, over its quota or down never blocks the ticket.
+
 ## What the hooks enforce
 
 | When | Rule |
 |---|---|
-| Always | `approvals.json`, the active ticket and `state.json` are written only by the hooks, when you type `/ticket` or `/approve` |
+| Always | `approvals.json`, the active ticket and `state.json` are written only by the hooks, when you type `/ticket` or `/approve`. They can be read, never written, and the gate script cannot be run from the shell |
+| Always | the project is found from the file being touched, so the gates also hold when the session is opened in a parent folder or a monorepo |
+| After an approval | a plan changed after you approved it is reported in the ticket status until you approve it again |
 | Before `/approve go` | only `docs/` can change: edits are refused, and so are shell commands that write (redirections, `sed -i`, `rm`, `git apply`, inline scripts…); no commit, no push |
-| Documents | `03-…` needs `functional`, `04-…` needs `technical`, `06-…` to `09-…` need `go`, `10-…` needs `merge` |
+| Documents | `03-…` needs `functional`, `04-…` needs `technical`, `06-…` to `09-…` need `go`, `10-…` needs `merge`; `08-review.md` needs the quality report |
 | During implementation | each agent is held to its write scope; `developer` and `test-engineer` to the files their tasks own in `04-tasks.json` |
 | After a quality run | Claude cannot hand back while the last run is red or the code changed since, whether by an edit or a shell command |
 | `/approve merge` | accepted only if the last quality run is green and the code unchanged since |
@@ -149,6 +168,7 @@ At step 8 the `functional-reviewer` writes the rules now in force where your pro
 | `buildCommand` | auto | overrides `./mvnw -B verify` or `./gradlew check jacocoTestReport` |
 | `specsPath` | none | folder of your functional specifications |
 | `knowledgePath` | `.claude/skills/project-knowledge` | where the retro writes |
+| `remoteReviewers` | none | review services hosted elsewhere, asked for a second opinion at step 8 |
 
 ## What goes in git
 

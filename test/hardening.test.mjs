@@ -276,3 +276,57 @@ test('Claude cannot run the gate script to approve for the developer', () => {
   assert.match(bash(dir, `node -e "import('/plugins/saw/hooks/gates.mjs')"`), /only be asked for the status/);
   assert.equal(bash(dir, 'node "/plugins/saw/hooks/gates.mjs" status'), null);
 });
+
+test('the project is found from the file touched or the folder a command starts in', async () => {
+  const { resolveProjectDir } = await import('../hooks/gates.mjs');
+  const session = fs.mkdtempSync(path.join(os.tmpdir(), 'saw-session-'));
+  const { dir } = project();
+  const nested = path.join(dir, 'src', 'main', 'java');
+  fs.mkdirSync(nested, { recursive: true });
+  const file = { tool_name: 'Write', tool_input: { file_path: path.join(nested, 'A.java') }, cwd: session };
+  assert.equal(resolveProjectDir(file, session), dir);
+  assert.equal(resolveProjectDir({ tool_name: 'Bash', tool_input: { command: `cd "${dir}" && ./mvnw test` }, cwd: session }, session), dir);
+  assert.equal(resolveProjectDir({ tool_name: 'Bash', tool_input: { command: './mvnw test' }, cwd: nested }, session), dir);
+  assert.equal(resolveProjectDir({ tool_name: 'Bash', tool_input: { command: 'ls' }, cwd: session }, session), session);
+  assert.equal(resolveProjectDir({ tool_name: 'Write', tool_input: { file_path: path.join(session, 'x.txt') }, cwd: session }, session), session);
+  // end to end: the session is elsewhere, the gate of the project still applies
+  const pre = spawnSync('node', [GATES_SCRIPT, 'pre-tool'], {
+    input: JSON.stringify(file), env: { ...process.env, CLAUDE_PROJECT_DIR: session }, encoding: 'utf8',
+  });
+  assert.match(JSON.parse(pre.stdout).hookSpecificOutput.permissionDecisionReason, /approve go/);
+});
+
+test('the protected files can be read from the shell, never written', () => {
+  const { dir } = project({ files: FULL, approve: ['functional', 'technical', 'go'] });
+  assert.equal(bash(dir, 'cat docs/tickets/PET-1/approvals.json'), null);
+  assert.equal(bash(dir, 'cat docs/tickets/PET-1/07-quality-gates.json | head -5 && cat docs/tickets/.active'), null);
+  assert.match(bash(dir, "sed -i 's/false/true/' docs/tickets/PET-1/07-quality-gates.json"), /quality-gates script/);
+  assert.match(bash(dir, 'cp /tmp/a.json docs/tickets/PET-1/approvals.json'), /\/approve/);
+  assert.match(bash(dir, 'echo {} > "$T/approvals.json"'), /\/approve/);
+  // naming a protected file is not writing it: the lines /setup adds to .gitignore
+  assert.equal(bash(dir, "printf 'docs/tickets/.active\\ndocs/tickets/*/.dirty\\n' >> .gitignore"), null);
+});
+
+test('the review cannot be written before the quality report', () => {
+  const { dir, t } = project({ files: FULL, approve: ['functional', 'technical', 'go'] });
+  assert.match(write(dir, 'docs/tickets/PET-1/08-review.md'), /07-quality-report\.md/);
+  fs.writeFileSync(path.join(t, '07-quality-report.md'), 'x');
+  assert.equal(write(dir, 'docs/tickets/PET-1/08-review.md'), null);
+});
+
+test('a document changed after its approval is reported, and can be approved again', () => {
+  const { dir, t } = project({ files: ['01-understanding.md', '02-fast-plan.md'] });
+  assert.equal(handlePrompt(dir, '/approve fast').ok, true);
+  assert.deepEqual(deriveState(dir, 'PET-1').changedSinceApproval, []);
+  fs.writeFileSync(path.join(t, '02-fast-plan.md'), '# x\n\n## Added after approval\n');
+  assert.deepEqual(deriveState(dir, 'PET-1').changedSinceApproval, ['02-fast-plan.md']);
+  assert.match(describe(dir), /Changed since the developer approved it: 02-fast-plan\.md/);
+  assert.equal(handlePrompt(dir, '/approve fast agreed').ok, true);
+  assert.deepEqual(deriveState(dir, 'PET-1').changedSinceApproval, []);
+
+  const full = project({ files: ['01-understanding.md', '02-functional-questions.md'], approve: ['functional'] });
+  fs.appendFileSync(path.join(full.t, '02-functional-questions.md'), 'F9: new rule\n');
+  assert.deepEqual(deriveState(full.dir, 'PET-1').changedSinceApproval, ['02-functional-questions.md']);
+  assert.equal(handlePrompt(full.dir, '/approve functional').ok, true);
+  assert.deepEqual(deriveState(full.dir, 'PET-1').changedSinceApproval, []);
+});

@@ -83,6 +83,9 @@ Write `docs/tickets/<ID>/10-retro.md` last. Writing it closes the ticket: the pl
 ## ADR candidates
 ## Proposed and not kept
 Kept here so the same proposal is not made again.
+
+## Follow-up for a next ticket
+What the developer asked to do later, in their words. The next ticket on this code reads it.
 ```
 
 If the developer wants to skip the retro, write the file with "Skipped at the developer's request" and nothing else.

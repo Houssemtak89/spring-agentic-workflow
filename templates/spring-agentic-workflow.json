@@ -3,5 +3,6 @@
   "sonar": false,
   "buildCommand": null,
   "specsPath": null,
-  "knowledgePath": null
+  "knowledgePath": null,
+  "remoteReviewers": []
 }

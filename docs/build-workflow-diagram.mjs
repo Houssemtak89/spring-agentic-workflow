@@ -56,7 +56,7 @@ text(24, 50, 'Spring agentic workflow', 'h1', 'start');
 text(24, 78, 'From ticket to merge on a Java / Spring project. AI agents analyse, plan, implement and review; the developer decides at four gates,', 'lead', 'start');
 text(24, 96, 'the plugin’s hooks hold everyone to it, and every ticket teaches the project’s own knowledge base.', 'lead', 'start');
 rect(W - 24 - 64, 30, 64, 24, 'tag', 12);
-text(W - 24 - 32, 46, 'v0.2.0', 'tagtext');
+text(W - 24 - 32, 46, 'v0.3.0', 'tagtext');
 
 // ---------------------------------------------------------------------------------------------
 // Lanes
@@ -130,6 +130,11 @@ agentCard(bx(4), 448, BW, 30, 'developer  × N');
 agentCard(bx(4), 482, BW, 30, 'test-engineer');
 agentCard(bx(6), 448, BW, 64, 'functional-reviewer', 'writes docs only');
 agentCard(bx(4), 520, CW * 3 - 12, 32, 'technical-reviewer  —  one lens per instance, in parallel');
+// Remote reviewers: optional, another model hosted elsewhere, asked at step 8
+rect(bx(7), 448, BW, 64, 'remote', 9);
+text(cx(7), 468, 'remote reviewers', 'remotename');
+text(cx(7), 483, 'optional · over MCP', 'agentsub');
+text(cx(7), 497, 'asked at step 8', 'agentsub');
 
 // ---------------------------------------------------------------------------------------------
 // Documents lane
@@ -173,6 +178,7 @@ text(312, KY + 27, 'read first by every agent, on the next ticket', 'learntext')
 // The six agents
 // ---------------------------------------------------------------------------------------------
 text(24, 946, 'Six agents, each with its own context and its own limits', 'h2', 'start');
+text(W - 24, 946, '+ optional remote reviewers: another model hosted elsewhere, reached over MCP (for example a Hugging Face Space)', 'remotenote', 'end');
 const AGENTS = [
   ['analyst', ['Maps the ticket to the code,', 'the ADRs and what the project', 'knows. Every claim cites a file.'], 'nothing', 'ro'],
   ['architect', ['Lists the real decisions, with', 'options, cost, and what the', 'project has already settled.'], 'nothing', 'ro'],
@@ -214,7 +220,7 @@ const TRUE = [
   'Every business rule F1, F2… is traced to a test that proves it.',
   'Test-first is your call, asked again on each ticket.',
   'The functional documentation is updated before the human review.',
-  'The plugin brings only common principles (DRY, SOLID, YAGNI, KISS); the rest it learns from you.',
+  'Code leaves your machine only if you list a remote reviewer, and only the code the ticket changed.',
 ];
 TRUE.forEach((t, i) => {
   out.push(`<circle cx="738" cy="${1168 + i * 20}" r="3" class="dot"/>`);
@@ -275,6 +281,8 @@ const css = `
   .steptitle { font-size: 13px; font-weight: 700; } .stepsub { font-size: 11px; fill: var(--muted); }
   .loop { stroke: var(--main); stroke-width: 1.5; fill: none; stroke-dasharray: 5 3; } .looptext { font-size: 11px; fill: var(--main); font-weight: 600; }
   .agent { fill: var(--agent-fill); stroke: var(--agent-line); stroke-width: 1.5; }
+  .remote { fill: var(--know-fill); stroke: var(--know-line); stroke-width: 1.5; stroke-dasharray: 5 3; }
+  .remotename { font-size: 11.5px; font-weight: 700; fill: var(--know); } .remotenote { font-size: 12px; fill: var(--know); font-weight: 600; }
   .agentname { font-size: 11.5px; font-weight: 700; fill: var(--agent); } .agentsub { font-size: 10.5px; fill: var(--muted); }
   .doc { fill: var(--doc-fill); stroke: var(--doc-line); } .doctext { font-size: 10px; fill: var(--doc); }
   .hookbar { fill: var(--hook-fill); stroke: var(--hook-line); }
@@ -293,7 +301,7 @@ const css = `
 
 const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img" aria-labelledby="t d">
 <title id="t">Spring agentic workflow</title>
-<desc id="d">Ten steps from ticket to merge in five lanes: the developer and the four gates, the main session, the six agents, the documents written, and what the plugin's hooks enforce. A fast path replaces the first three gates for small tickets. After the merge, a retro writes validated lessons into the project's knowledge base, which every agent reads on the next ticket.</desc>
+<desc id="d">Ten steps from ticket to merge in five lanes: the developer and the four gates, the main session, the six agents and the optional remote reviewers, the documents written, and what the plugin's hooks enforce. A fast path replaces the first three gates for small tickets. After the merge, a retro writes validated lessons into the project's knowledge base, which every agent reads on the next ticket.</desc>
 <style>${css}</style>
 <defs>${marker('a-gate', 'm-gate')}${marker('a-loop', 'm-loop')}${marker('a-learn', 'm-learn')}</defs>
 ${out.join('\n')}

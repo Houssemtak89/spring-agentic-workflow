@@ -44,9 +44,17 @@ Only what `01-understanding.md` left open. Each with the answer you would pick.
 Build and tests, coverage threshold, conventions review, functional review.
 ```
 
-Keep it to one page. Read the project's knowledge base (`.claude/skills/project-knowledge/`) before the technical choices: a small ticket is where a known project rule is most easily forgotten.
+Keep it to one page. Before the technical choices, read two things, because a small ticket is where a known rule is most easily forgotten:
+- the project's knowledge base (`.claude/skills/project-knowledge/`);
+- "What the build enforces" in `01-understanding.md`. If a check there touches the files of this ticket (a test that keeps translation files in sync, a formatter, an architecture test), the plan must say how the change satisfies it, and the files it adds go in the task table.
+
+Checks, when the project has no settings file: build and tests, 80% line coverage, Sonar off.
 
 ## Ask, then wait
 Show the open points and the test-first question in the conversation. When the developer answers, update the file with their words.
 
 Then stop. Until the developer types `/approve fast`, the plugin blocks every change outside `docs/`. That single approval stands for the functional, technical and go gates.
+
+## After the approval
+- **If agents do the tasks**, write `docs/tickets/<ID>/04-tasks.json` from the Tasks table before starting them (same format as on the normal path). Without it, the plugin cannot hold a `developer` or `test-engineer` to its files.
+- **If the plan must change** (a file to add, a rule to adjust), update `02-fast-plan.md` and tell the developer what changed. The plugin notices that the approved document changed and says so in the ticket status; the developer types `/approve fast` again to approve the new version.

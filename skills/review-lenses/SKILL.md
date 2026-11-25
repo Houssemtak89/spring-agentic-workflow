@@ -32,6 +32,9 @@ Arguments: $ARGUMENTS
 
 Reviewers never edit code. The plugin enforces it.
 
+## Remote reviewers
+A project can also ask for a second opinion from a review service hosted elsewhere, reached through an MCP tool: for example a Hugging Face Space that reviews Java code with an open source model. They are optional and opt-in, because the code leaves the machine. When `.claude/spring-agentic-workflow.json` lists `remoteReviewers`, or when the arguments name one, read `${CLAUDE_SKILL_DIR}/references/remote-reviewers.md` and follow it: what may be sent, how to check what comes back, where to write it.
+
 ## Severity, the same for every lens
 - **must fix**: wrong behaviour, a hole, data at risk, or a break of an ADR or of the approved plan.
 - **should fix**: correct today but fragile, costly, or against a written project rule.

@@ -20,6 +20,12 @@ Settings go in `.claude/spring-agentic-workflow.json`:
 { "coverageThreshold": 80, "sonar": true }
 ```
 
+Without that file the script uses its defaults: 80% line coverage, Sonar off, the Maven or Gradle wrapper found in the project.
+
+The build runs in the environment of your command. If it needs something that is not on the PATH (a `JAVA_HOME`, for instance, often noted in the project's `CLAUDE.md`), set it in the same command, before the script.
+
+To look at the result, read `07-quality-gates.json` with the Read tool or a read-only command.
+
 Sonar needs `SONAR_TOKEN` in the environment and the `sonar.*` properties in the build file (see `templates/sonarcloud` in this plugin).
 
 ## 2. The conventions review
@@ -50,8 +56,13 @@ After three failed rounds on the same problem, stop and explain it to the develo
 | Where | Finding | Fix |
 |---|---|---|
 
+## Notes left as they are
+Review notes that were read and deliberately not acted on, with the reason.
+
 ## What failed along the way
 Each check that failed before it passed, and its cause. The retro reads this.
 ```
+
+This report is not optional: the plugin refuses `08-review.md` until `07-quality-report.md` exists, and the retro learns from "What failed along the way".
 
 Then run `final-review`.

@@ -250,6 +250,27 @@ function shellRefusal(projectDir, command, { allowDocs }) {
 // PreToolUse
 // ---------------------------------------------------------------------------------------------
 
+// The files only the plugin writes may be read from the shell (cat, jq, grep…), never written.
+// Refused: a command whose target is one of them, and a write whose target cannot be read from
+// the text (sed -i, an inline script…) in a command that names one of them.
+function protectedShellRefusal(projectDir, cmd) {
+  const writes = shellWrites(cmd);
+  for (const w of writes) {
+    if (!w.path) continue;
+    const byPath = protectedFile(rel(projectDir, w.path));
+    if (byPath) return byPath;
+    const base = w.path.replace(/\\/g, '/').split('/').pop();
+    if (base === 'approvals.json') return MSG_APPROVALS;
+    if (base === '07-quality-gates.json') return MSG_QUALITY;
+  }
+  if (writes.some((w) => w.what)) {
+    if (/approvals\.json/.test(cmd)) return MSG_APPROVALS;
+    if (/07-quality-gates\.json|tickets[\\/][^ ]*\.(dirty|snapshot)\b/.test(cmd)) return MSG_QUALITY;
+    if (/tickets[\\/](\.active|[^ ]*state\.json)/.test(cmd)) return MSG_STATE;
+  }
+  return null;
+}
+
 // Returns null when the tool call may go on, or the reason to refuse it.
 export function checkToolUse(projectDir, toolName, toolInput = {}, context = {}) {
   const id = activeTicket(projectDir);
@@ -257,10 +278,9 @@ export function checkToolUse(projectDir, toolName, toolInput = {}, context = {})
 
   if (SHELL_TOOLS.has(toolName)) {
     const cmd = String(toolInput.command || '');
-    if (/approvals\.json/.test(cmd)) return MSG_APPROVALS;
     if (/gates\.mjs/.test(cmd) && !/gates\.mjs["']?\s+status\s*$/.test(cmd.trim())) return MSG_SCRIPT;
-    if (/07-quality-gates\.json|tickets[\\/][^ ]*\.(dirty|snapshot)/.test(cmd)) return MSG_QUALITY;
-    if (/tickets[\\/](\.active|[^ ]*state\.json)/.test(cmd) && shellWrites(cmd).length) return MSG_STATE;
+    const locked = protectedShellRefusal(projectDir, cmd);
+    if (locked) return locked;
     if (!id) return null;
 
     const approvals = readApprovals(projectDir, id);
@@ -309,6 +329,9 @@ export function checkToolUse(projectDir, toolName, toolInput = {}, context = {})
         return `Ticket ${id}: ${name} comes after the "${gate}" gate. Wait for the developer to type /approve ${gate}.`;
       }
     }
+    if (/^08-/.test(name) && !fs.existsSync(path.join(ticketsDir(projectDir), id, '07-quality-report.md'))) {
+      return `Ticket ${id}: write 07-quality-report.md (step 7) before ${name}. The review and the retro read it.`;
+    }
     return null;
   }
   if (r.startsWith('docs/')) return null;
@@ -354,8 +377,28 @@ export function deriveState(projectDir, id) {
     step,
     path: approvals.fast ? 'fast' : 'full',
     approved: [...GATES.filter((g) => approvals[g]), ...(approvals.fast ? ['fast'] : [])],
+    changedSinceApproval: changedSinceApproval(dir, approvals),
     next: NEXT[step],
   };
+}
+
+// The document a gate approves. Its fingerprint is kept with the approval, so a later change shows.
+const GATE_DOC = { functional: '02-functional-questions.md', technical: '03-technical-plan.md', go: '04-implementation-plan.md', fast: FAST_PLAN };
+
+function fingerprint(file) {
+  try {
+    return crypto.createHash('sha256').update(fs.readFileSync(file, 'utf8').replace(/\r/g, '')).digest('hex').slice(0, 16);
+  } catch {
+    return null;
+  }
+}
+
+function changedSinceApproval(dir, approvals) {
+  const changed = [];
+  for (const a of Object.values(approvals)) {
+    if (a && a.doc && a.doc.sha && fingerprint(path.join(dir, a.doc.file)) !== a.doc.sha && !changed.includes(a.doc.file)) changed.push(a.doc.file);
+  }
+  return changed;
 }
 
 function writeState(projectDir, id) {
@@ -372,7 +415,10 @@ export function describe(projectDir) {
   if (!id) return null;
   const s = deriveState(projectDir, id);
   const approved = s.approved.length ? s.approved.join(', ') : 'none';
-  return `Spring agentic workflow: ticket ${id} is active (${s.path} path), step ${s.step}. Gates approved by the developer: ${approved}. Next: ${s.next}. Its documents are in docs/tickets/${id}/.`;
+  const changed = s.changedSinceApproval.length
+    ? ` Changed since the developer approved it: ${s.changedSinceApproval.join(', ')}. Tell the developer what changed; they approve it again with the same /approve command if they agree.`
+    : '';
+  return `Spring agentic workflow: ticket ${id} is active (${s.path} path), step ${s.step}. Gates approved by the developer: ${approved}. Next: ${s.next}. Its documents are in docs/tickets/${id}/.${changed}`;
 }
 
 // ---------------------------------------------------------------------------------------------
@@ -424,7 +470,7 @@ export function handlePrompt(projectDir, prompt, now = new Date()) {
   const stamp = { at: now.toISOString(), note };
 
   if (gate === 'fast') {
-    if (approvals.functional) {
+    if (approvals.functional && !approvals.fast) {
       return { ok: false, message: `Ticket ${id}: the fast path replaces the first three gates, and "functional" is already approved. Carry on with the normal gates.` };
     }
     for (const f of ['01-understanding.md', FAST_PLAN]) {
@@ -432,7 +478,7 @@ export function handlePrompt(projectDir, prompt, now = new Date()) {
         return { ok: false, message: `Ticket ${id}: ${f} does not exist yet, nothing to approve.` };
       }
     }
-    approvals.fast = stamp;
+    approvals.fast = { ...stamp, doc: { file: FAST_PLAN, sha: fingerprint(path.join(dir, FAST_PLAN)) } };
     for (const g of ['functional', 'technical', 'go']) approvals[g] = { ...stamp, via: 'fast' };
   } else {
     const previous = GATES[GATES.indexOf(gate) - 1];
@@ -447,7 +493,9 @@ export function handlePrompt(projectDir, prompt, now = new Date()) {
       const q = qualityState(projectDir, id);
       if (!q.passed) return { ok: false, message: `Ticket ${id}: ${q.reason} Run the quality gates before approving the merge.` };
     }
-    approvals[gate] = stamp;
+    approvals[gate] = GATE_DOC[gate] && !approvals.fast
+      ? { ...stamp, doc: { file: GATE_DOC[gate], sha: fingerprint(path.join(dir, GATE_DOC[gate])) } }
+      : stamp;
   }
 
   fs.mkdirSync(dir, { recursive: true });
@@ -569,10 +617,33 @@ function readStdin() {
   }
 }
 
+// The project a tool call belongs to: the nearest folder, going up from the file it touches (or from the
+// folder a shell command starts in), that holds docs/tickets/. This covers a project opened from a parent
+// folder, a monorepo, and agents working in another checkout. Falls back to the session's project.
+export function resolveProjectDir(input = {}, fallback = process.cwd()) {
+  const base = input.cwd || fallback;
+  const tool = input.tool_input || {};
+  let start = null;
+  if (SHELL_TOOLS.has(input.tool_name)) {
+    const cd = /^\s*(?:cd|pushd|Set-Location)\s+(?:"([^"]+)"|'([^']+)'|([^\s;&|]+))/i.exec(String(tool.command || ''));
+    start = path.resolve(base, cd ? cd[1] || cd[2] || cd[3] : '.');
+  } else if (tool.file_path || tool.notebook_path) {
+    start = path.dirname(path.resolve(base, tool.file_path || tool.notebook_path));
+  }
+  for (let dir = start; dir; ) {
+    if (fs.existsSync(path.join(dir, 'docs', 'tickets'))) return dir;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return fallback;
+}
+
 function main() {
   const mode = process.argv[2];
   const input = mode === 'status' ? {} : readStdin();
-  const projectDir = process.env.CLAUDE_PROJECT_DIR || input.cwd || process.cwd();
+  const sessionDir = process.env.CLAUDE_PROJECT_DIR || input.cwd || process.cwd();
+  const projectDir = mode === 'pre-tool' || mode === 'post-tool' ? resolveProjectDir(input, sessionDir) : sessionDir;
 
   if (mode === 'pre-tool') {
     const reason = checkToolUse(projectDir, input.tool_name, input.tool_input, { agentType: input.agent_type });

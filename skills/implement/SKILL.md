@@ -7,10 +7,12 @@ description: Step 6 of the Spring agentic workflow. Runs the approved implementa
 
 Input: `04-implementation-plan.md` and `04-tasks.json`, approved with `/approve go`. On the fast path, the tasks are in `02-fast-plan.md`.
 
-Stick to the plan. If the work shows the plan is wrong, stop and tell the developer instead of improvising: a new decision goes back to step 3.
+Stick to the plan. If the work shows the plan is wrong, stop and tell the developer instead of improvising. On the normal path a new decision goes back to step 3. On the fast path, update `02-fast-plan.md` with the developer's answer; they approve the new version with `/approve fast`.
 
 ## Fast path
-A small ticket rarely needs parallel agents. Do the code yourself or with one `developer`, and give the tests to the `test-engineer` so that they stay independent from the code. There is no task table, so the gates alone apply. Then go to the quality gates.
+A small ticket rarely needs parallel agents. Do the code yourself or with one `developer`, and give the tests to the `test-engineer` so that they stay independent from the code. If you use agents, write `04-tasks.json` from the plan's Tasks table first, so that each agent is held to its files; with no task table, the gates alone apply.
+
+Test-first on the fast path: write the signatures the tests need (an empty method, a new type) yourself before the `test-engineer` starts, so that the tests fail on an assertion and not on a compilation error. Then go to the quality gates.
 
 ## Order, on the normal path
 1. **Contracts first (T0).** Write the interfaces, DTOs and signatures the other tasks depend on, yourself. Compile once (`./mvnw -q -DskipTests compile` or the Gradle equivalent).

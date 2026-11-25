@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.3.0
+After two full runs of the same ticket on spring-petclinic, one driven by a small model on the normal path and one by a large model on the fast path.
+
+### Remote reviewers
+- A project can list review services hosted elsewhere, reached through an MCP tool (for example a Java reviewer running as a Hugging Face Space), in `remoteReviewers`. They are asked for a second opinion at step 8.
+- Opt-in, because the changed code leaves the machine: only code the ticket changed is sent, and each finding is checked at its line before it counts.
+
+### Hooks
+- The project is found from the file being touched or the folder a command starts in, so the gates hold in a monorepo or when the session is opened in a parent folder.
+- The protected files can be read from the shell. Only writing them is refused.
+- `08-review.md` is refused until the quality report `07-quality-report.md` exists.
+- A document changed after its approval is reported in the ticket status until the developer approves it again. `/approve fast` can be typed again for that.
+
+### Skills and agents
+- The analyst lists what the build enforces (a test that keeps files in sync, a formatter, an architecture test) and checks its line references before returning. The fast plan must say how the change satisfies those checks.
+- The fast path is always offered for a small ticket, with the open points listed; it writes a task table when agents do the work, so each agent is held to its files.
+- The quality-gates skill states its defaults (80% line coverage, Sonar off) and how to give the build its environment.
+- The retro has a "Follow-up for a next ticket" section.
+
 ## 0.2.1
 Found by running the plugin on spring-petclinic.
 - Quality gates on Windows: the Maven and Gradle wrappers are called as `.\mvnw.cmd` and `.\gradlew.bat`; the bare name was not found by the shell.

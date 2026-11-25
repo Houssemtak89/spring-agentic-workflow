@@ -1,6 +1,6 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1420 1290" width="1420" height="1290" role="img" aria-labelledby="t d">
 <title id="t">Spring agentic workflow</title>
-<desc id="d">Ten steps from ticket to merge in five lanes: the developer and the four gates, the main session, the six agents, the documents written, and what the plugin's hooks enforce. A fast path replaces the first three gates for small tickets. After the merge, a retro writes validated lessons into the project's knowledge base, which every agent reads on the next ticket.</desc>
+<desc id="d">Ten steps from ticket to merge in five lanes: the developer and the four gates, the main session, the six agents and the optional remote reviewers, the documents written, and what the plugin's hooks enforce. A fast path replaces the first three gates for small tickets. After the merge, a retro writes validated lessons into the project's knowledge base, which every agent reads on the next ticket.</desc>
 <style>
   :root {
     --bg:#ffffff; --ink:#1f2328; --muted:#59636e; --line:#d1d9e0; --panel:#f6f8fa;
@@ -50,6 +50,8 @@
   .steptitle { font-size: 13px; font-weight: 700; } .stepsub { font-size: 11px; fill: var(--muted); }
   .loop { stroke: var(--main); stroke-width: 1.5; fill: none; stroke-dasharray: 5 3; } .looptext { font-size: 11px; fill: var(--main); font-weight: 600; }
   .agent { fill: var(--agent-fill); stroke: var(--agent-line); stroke-width: 1.5; }
+  .remote { fill: var(--know-fill); stroke: var(--know-line); stroke-width: 1.5; stroke-dasharray: 5 3; }
+  .remotename { font-size: 11.5px; font-weight: 700; fill: var(--know); } .remotenote { font-size: 12px; fill: var(--know); font-weight: 600; }
   .agentname { font-size: 11.5px; font-weight: 700; fill: var(--agent); } .agentsub { font-size: 10.5px; fill: var(--muted); }
   .doc { fill: var(--doc-fill); stroke: var(--doc-line); } .doctext { font-size: 10px; fill: var(--doc); }
   .hookbar { fill: var(--hook-fill); stroke: var(--hook-line); }
@@ -71,7 +73,7 @@
 <text x="24" y="78" class="lead" text-anchor="start"><tspan x="24" dy="0">From ticket to merge on a Java / Spring project. AI agents analyse, plan, implement and review; the developer decides at four gates,</tspan></text>
 <text x="24" y="96" class="lead" text-anchor="start"><tspan x="24" dy="0">the plugin’s hooks hold everyone to it, and every ticket teaches the project’s own knowledge base.</tspan></text>
 <rect x="1332" y="30" width="64" height="24" rx="12" class="tag"/>
-<text x="1364" y="46" class="tagtext" text-anchor="middle"><tspan x="1364" dy="0">v0.2.0</tspan></text>
+<text x="1364" y="46" class="tagtext" text-anchor="middle"><tspan x="1364" dy="0">v0.3.0</tspan></text>
 <rect x="24" y="120" width="122" height="150" rx="12" class="lab lab-dev"/>
 <text x="85" y="191" class="labt t-dev" text-anchor="middle"><tspan x="85" dy="0">Developer</tspan></text>
 <text x="85" y="208" class="labs" text-anchor="middle"><tspan x="85" dy="0">decides</tspan></text>
@@ -184,6 +186,10 @@
 <text x="1031" y="492" class="agentsub" text-anchor="middle"><tspan x="1031" dy="0">writes docs only</tspan></text>
 <rect x="702" y="520" width="390" height="32" rx="9" class="agent"/>
 <text x="897" y="540" class="agentname" text-anchor="middle"><tspan x="897" dy="0">technical-reviewer  —  one lens per instance, in parallel</tspan></text>
+<rect x="1104" y="448" width="122" height="64" rx="9" class="remote"/>
+<text x="1165" y="468" class="remotename" text-anchor="middle"><tspan x="1165" dy="0">remote reviewers</tspan></text>
+<text x="1165" y="483" class="agentsub" text-anchor="middle"><tspan x="1165" dy="0">optional · over MCP</tspan></text>
+<text x="1165" y="497" class="agentsub" text-anchor="middle"><tspan x="1165" dy="0">asked at step 8</tspan></text>
 <rect x="166" y="588" width="122" height="68" rx="8" class="doc"/>
 <text x="227" y="619" class="doctext" text-anchor="middle"><tspan x="227" dy="0">00-ticket.md</tspan><tspan x="227" dy="14">01-understanding.md</tspan></text>
 <rect x="300" y="588" width="122" height="68" rx="8" class="doc"/>
@@ -225,6 +231,7 @@
 <path d="M470 857 H153 V354 H163" class="learn" marker-end="url(#a-learn)"/>
 <text x="312" y="849" class="learntext" text-anchor="middle"><tspan x="312" dy="0">read first by every agent, on the next ticket</tspan></text>
 <text x="24" y="946" class="h2" text-anchor="start"><tspan x="24" dy="0">Six agents, each with its own context and its own limits</tspan></text>
+<text x="1396" y="946" class="remotenote" text-anchor="end"><tspan x="1396" dy="0">+ optional remote reviewers: another model hosted elsewhere, reached over MCP (for example a Hugging Face Space)</tspan></text>
 <rect x="24" y="962" width="218" height="138" rx="12" class="card"/>
 <text x="40" y="988" class="cardname" text-anchor="start"><tspan x="40" dy="0">analyst</tspan></text>
 <text x="40" y="1010" class="cardrole" text-anchor="start"><tspan x="40" dy="0">Maps the ticket to the code,</tspan><tspan x="40" dy="16">the ADRs and what the project</tspan><tspan x="40" dy="16">knows. Every claim cites a file.</tspan></text>
@@ -278,5 +285,5 @@
 <circle cx="738" cy="1228" r="3" class="dot"/>
 <text x="750" y="1232" class="cmddesc" text-anchor="start"><tspan x="750" dy="0">The functional documentation is updated before the human review.</tspan></text>
 <circle cx="738" cy="1248" r="3" class="dot"/>
-<text x="750" y="1252" class="cmddesc" text-anchor="start"><tspan x="750" dy="0">The plugin brings only common principles (DRY, SOLID, YAGNI, KISS); the rest it learns from you.</tspan></text>
+<text x="750" y="1252" class="cmddesc" text-anchor="start"><tspan x="750" dy="0">Code leaves your machine only if you list a remote reviewer, and only the code the ticket changed.</tspan></text>
 </svg>
