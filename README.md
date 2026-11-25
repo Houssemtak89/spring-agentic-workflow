@@ -13,7 +13,7 @@ It runs on Claude Code today and is **built to move to another AI coding tool**:
 - **Every business rule is traced.** Rules agreed with you are numbered `F1`, `F2`… and followed through the plan, the tests, the review and the functional documentation.
 - **It learns your project.** The plugin ships only common principles (DRY, SOLID, YAGNI, KISS). After each ticket, a retro proposes what the project should remember; what you validate goes into a project skill that every later ticket reads first.
 - **Proportionate.** A small ticket takes the fast path: one page, one approval.
-- **Open to remote reviewers.** A project can add a second opinion from a review service hosted elsewhere, such as an open source model running in a Hugging Face Space, reached through MCP.
+- **Open to remote reviewers.** A project can add a second opinion from a review service hosted elsewhere, such as an open source model behind a small public service, reached through MCP.
 
 ## Requirements
 
@@ -111,11 +111,11 @@ One `technical-reviewer` looks through one lens: `security`, `performance`, `dat
 
 The six agents above run in your session, on the model you use. A project can also have **remote reviewers**: review services hosted elsewhere, reached through an MCP tool, that give a second opinion from a different model. That is where a second opinion is worth most: a model does not easily see the blind spots of code it wrote itself.
 
-One example is Java Code Reviewer, a small Spring Boot service that reviews a Java class with an open source model and exposes the MCP tool `review_java_code`. It runs anywhere a container runs: a Hugging Face Space, a server of your team, or your own machine. Any MCP review tool works the same way.
+One example is Java Code Reviewer, a small Spring Boot service that reviews a Java class with an open source model and exposes the MCP tool `review_java_code`. A public demo runs at https://java-code-reviewer.onrender.com (source: [java-code-reviewer](https://github.com/Houssemtak89/java-code-reviewer)); it also runs anywhere a container runs: a server of your team or your own machine. Any MCP review tool works the same way.
 
 They are optional and opt-in, because the changed code leaves your machine:
 
-1. Connect the service: `claude mcp add --transport http java-reviewer <url of the service>/mcp` (for a local run, `http://localhost:7860/mcp`)
+1. Connect the service: `claude mcp add --transport http java-reviewer https://java-code-reviewer.onrender.com/mcp` (for a local run, `http://localhost:7860/mcp`). The public demo has a daily quota and sleeps when idle: the first call can take a minute.
 2. List it in `.claude/spring-agentic-workflow.json`:
    ```json
    { "remoteReviewers": [ { "name": "java-code-reviewer", "tool": "mcp__java-reviewer__review_java_code", "files": "**/*.java", "maxLines": 200, "maxChars": 12000 } ] }
