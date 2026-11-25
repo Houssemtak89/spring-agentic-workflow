@@ -11,7 +11,7 @@ It runs on Claude Code today and is **built to move to another AI coding tool**:
 - **Gates that cannot be talked around.** Approvals are recorded by a hook when *you* type `/approve`. Until you approve the plan, no code can change, whether by an edit or by a shell command. Claude cannot write the approval files.
 - **Few agents, real limits.** Six agents, each used where a separate context helps, each held by the hooks to what it may write: reviewers cannot edit code, a developer agent cannot touch a file its task does not own.
 - **Every business rule is traced.** Rules agreed with you are numbered `F1`, `F2`… and followed through the plan, the tests, the review and the functional documentation.
-- **It learns your project, it does not lecture it.** The plugin ships only common principles (DRY, SOLID, YAGNI, KISS). After each ticket, a retro proposes what the project should remember; what you validate goes into a project skill that every later ticket reads first.
+- **It learns your project.** The plugin ships only common principles (DRY, SOLID, YAGNI, KISS). After each ticket, a retro proposes what the project should remember; what you validate goes into a project skill that every later ticket reads first.
 - **Proportionate.** A small ticket takes the fast path: one page, one approval.
 - **Open to remote reviewers.** A project can add a second opinion from a review service hosted elsewhere, such as an open source model running in a Hugging Face Space, reached through MCP.
 
@@ -101,7 +101,7 @@ Commands are namespaced by Claude Code: `/spring-agentic-workflow:ticket` always
 | `technical-reviewer` | one review lens per instance, in parallel | only its findings |
 | `functional-reviewer` | checks each rule against behaviour and tests, updates the functional documentation | only documentation |
 
-"May write" is not a request in a prompt: the plugin's `PreToolUse` hook reads which agent is calling and refuses the rest.
+The plugin's `PreToolUse` hook enforces the "May write" column: it reads which agent is calling and refuses any other write.
 
 ### Review lenses
 
