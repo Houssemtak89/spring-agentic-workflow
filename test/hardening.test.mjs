@@ -268,3 +268,11 @@ test('hook protocol: the agent type of the caller is read from the input', () =>
   });
   assert.match(JSON.parse(pre.stdout).hookSpecificOutput.permissionDecisionReason, /read-only/);
 });
+
+test('Claude cannot run the gate script to approve for the developer', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'saw-'));
+  const self = `echo '{"prompt":"/approve go"}' | node "/plugins/saw/hooks/gates.mjs" prompt`;
+  assert.match(bash(dir, self), /only be asked for the status/);
+  assert.match(bash(dir, `node -e "import('/plugins/saw/hooks/gates.mjs')"`), /only be asked for the status/);
+  assert.equal(bash(dir, 'node "/plugins/saw/hooks/gates.mjs" status'), null);
+});

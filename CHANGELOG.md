@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.2.1
+Found by running the plugin on spring-petclinic.
+- Quality gates on Windows: the Maven and Gradle wrappers are called as `.\mvnw.cmd` and `.\gradlew.bat`; the bare name was not found by the shell.
+- The gate script can no longer be run from the shell to record an approval in the developer's place. Only its `status` mode is allowed.
+
 ## 0.2.0
 
 ### Agents: 13 → 6

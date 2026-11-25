@@ -25,11 +25,11 @@ export function detectBuild(projectDir, settings) {
   const win = process.platform === 'win32';
   const has = (f) => fs.existsSync(path.join(projectDir, f));
   if (has('pom.xml')) {
-    const mvn = has('mvnw') ? (win ? 'mvnw.cmd' : './mvnw') : 'mvn';
+    const mvn = has('mvnw') ? (win ? '.\\mvnw.cmd' : './mvnw') : 'mvn';
     return { tool: 'maven', command: `${mvn} -B verify` };
   }
   if (has('build.gradle') || has('build.gradle.kts')) {
-    const gradle = has('gradlew') ? (win ? 'gradlew.bat' : './gradlew') : 'gradle';
+    const gradle = has('gradlew') ? (win ? '.\\gradlew.bat' : './gradlew') : 'gradle';
     return { tool: 'gradle', command: `${gradle} check jacocoTestReport` };
   }
   return null;

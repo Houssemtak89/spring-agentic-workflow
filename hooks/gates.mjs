@@ -66,6 +66,7 @@ const TICKET_ID_RE = /^[A-Za-z0-9][\w.-]{0,63}$/;
 
 const MSG_APPROVALS = 'approvals.json is written only when the developer types /approve. Ask the developer.';
 const MSG_QUALITY = 'Quality results are written only by the quality-gates script. Run it instead.';
+const MSG_SCRIPT = 'The gate script is run by the plugin hooks when the developer types /ticket or /approve. From the shell it can only be asked for the status.';
 const MSG_STATE = 'The active ticket and state.json are written by the plugin when the developer types /ticket or /approve. Read them, do not write them.';
 
 // ---------------------------------------------------------------------------------------------
@@ -257,6 +258,7 @@ export function checkToolUse(projectDir, toolName, toolInput = {}, context = {})
   if (SHELL_TOOLS.has(toolName)) {
     const cmd = String(toolInput.command || '');
     if (/approvals\.json/.test(cmd)) return MSG_APPROVALS;
+    if (/gates\.mjs/.test(cmd) && !/gates\.mjs["']?\s+status\s*$/.test(cmd.trim())) return MSG_SCRIPT;
     if (/07-quality-gates\.json|tickets[\\/][^ ]*\.(dirty|snapshot)/.test(cmd)) return MSG_QUALITY;
     if (/tickets[\\/](\.active|[^ ]*state\.json)/.test(cmd) && shellWrites(cmd).length) return MSG_STATE;
     if (!id) return null;

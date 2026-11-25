@@ -2,6 +2,8 @@
 
 A Claude Code plugin that takes a Java / Spring ticket from analysis to merge. AI agents analyse, plan, implement and review. **You decide at four gates**, the plugin's hooks hold everyone to it, and every ticket teaches the project's own knowledge base.
 
+It runs on Claude Code today and is **built to move to another AI coding tool**: the gate logic and the scripts are plain Node with no dependency, and the workflow, the agent roles and the review lenses are Markdown. See [Portability](#portability).
+
 ![The workflow: ten steps, four gates, six agents, and a learning loop](docs/workflow.svg)
 
 ## Why this plugin
@@ -158,6 +160,20 @@ docs/tickets/*/state.json
 docs/tickets/*/.dirty
 docs/tickets/*/.snapshot
 ```
+
+## Portability
+
+Nothing in the method depends on one AI vendor. What is tied to Claude Code is the wiring, and it is thin.
+
+| Part | Where | Tied to Claude Code? |
+|---|---|---|
+| Gate logic: what may be written, when, by whom | `hooks/gates.mjs`, plain Node functions with tests | no |
+| Quality checks and review knowledge base | `skills/quality-gates/run.mjs`, `skills/final-review/build-review-kb.mjs` | no |
+| Workflow steps, agent roles, review lenses, principles | Markdown under `skills/` and `agents/` | no, apart from the front matter |
+| Ticket documents, approvals, project knowledge base | Markdown and JSON in your repository | no |
+| Hook registration, plugin manifest, slash commands | `hooks/hooks.json`, `.claude-plugin/`, skill front matter | yes |
+
+To run it in another AI coding tool, write a small adapter that calls the same functions from that tool's own hooks, and load the Markdown as that tool's instructions. Two things depend on what the tool offers: refusing a write before it happens needs a hook that runs before each tool call, and the per-agent write scopes need the tool to say which agent is calling. Where a tool has neither, the same checks can run at commit time.
 
 ## Limits
 
